@@ -1,11 +1,15 @@
 # Contextmachine Data Format
 ## Prequest
-Основным пакетом является `cxmdata`. Все остальные пакеты в каталоге существуют для использования формата внутри сторонних пакетов.
-
+The main package is `cxmdata`. All other packages in the directory exist to use the format within third-party packages.
 ## Description
 СxmData allows you to combine data from different sources and create custom data decoders/encoders. 
-You just pass the dependencies and decode what you want into simple python dictionaries or json.\
-
+You just pass the dependencies and decode what you want into simple python dictionaries or json.
+## Installation
+### Pip
+If you want to install with `pip`. You can follow:
+```
+pip install git+https://github.com/contextmachine/cxmdata.git
+```
 ### Example:
  In this case, we make an array with `RhinoCommon` objects in RhinoPython. We can decode it with a `rhino3dm` library.
     However, we need a more complex data structure and custom attributes.
@@ -26,12 +30,12 @@ Result:
 
 ...
  ```
-CxmData представляет собой строку, приведенную к ASCII с помощью [Base64](https://en.wikipedia.org/wiki/Base64). 
-Поэтому она может быть безопасно передана в любое api а также упростит вам работу с вашим сервисом из под с чужого api
+CxmData is a string converted to ASCII using [Base64](https://en.wikipedia.org/wiki/Base64). 
+Therefore it can be safely passed to any api and will also make it easier for you to use your service from another api
 
 ### Patterns
-Формат создан для передечи данных по сети с использованием http, ws, а также с помощью сокетов. Поэтому нет особой необходимости в файловом представлении.
-Однако на тот случай если хранение данных в файловой системе принципиально файл может быть сохранен в виде bz, gzip архива с расширениями:
+The format is designed for transferring data over the network using http, ws, and sockets. There is therefore no particular need for a file representation.
+However, if data storage in the file system is crucial, the file can be saved as a bz, gzip archive with extensions:
 ```
 *.cxm *.cxz 
 ```
