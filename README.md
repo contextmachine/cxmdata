@@ -7,10 +7,21 @@ You just pass the dependencies and decode what you want into simple python dicti
 ## Installation
 ### Pip
 If you want to install with `pip`. You can follow:
-```
+```bash
 pip install git+https://github.com/contextmachine/cxmdata.git
 ```
-### Example:
+### Docker
+Pull image: 
+```bash
+docker sthv/cxmdata:latest
+
+``` 
+Or build from `Dockerfile`:
+```bash
+cd cxmdata
+docker build . -t <tagname>
+```
+## Example of usage:
  In this case, we make an array with `RhinoCommon` objects in RhinoPython. We can decode it with a `rhino3dm` library.
     However, we need a more complex data structure and custom attributes.
 ```python
@@ -39,5 +50,5 @@ However, if data storage in the file system is crucial, the file can be saved as
 ```
 *.cxm *.cxz 
 ```
-For example, with using Pycharm:
+For example, with using Pycharm:\
 ![img_1.png](img_1.png)
