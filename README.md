@@ -1,4 +1,5 @@
 # Contextmachine Data Format
+[![Docker](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml)
 ## Prequest
 The main package is `cxmdata`. All other packages in the directory exist to use the format within third-party packages.
 ## Description
