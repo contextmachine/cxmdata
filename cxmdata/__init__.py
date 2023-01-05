@@ -2,10 +2,20 @@ import base64
 import bz2
 import json
 from typing import Any
-from mmcore.geom.xforms import create_Transform
+
 import rhino3dm as rg
 
 __all__ = ["CxmData"]
+
+
+def create_Transform(flat_arr):
+    tg = rg.Transform.ZeroTransformation()
+    k = 0
+    for i in range(4):
+        for j in range(4):
+            setattr(tg, "M{}{}".format(i, j), flat_arr[k])
+            k += 1
+    return tg
 
 
 class CxmData(bytes):
@@ -34,6 +44,7 @@ class CxmData(bytes):
      'keys': ['k1', 'k2']}]
 
     """
+
     def __new__(cls, s: str | bytes | dict | list | Any, *args, **kwargs):
         if isinstance(s, str):
             return super().__new__(cls, s.encode(), **kwargs)
