@@ -44,10 +44,12 @@ class CxmData(bytes):
 
     @classmethod
     def _decode_to_dict(cls, dct):
-        if isinstance(dct, (list, float)) and len(dct)==16:
-            return create_Transform(dct)
-        elif isinstance(dct, list | tuple):
-            return [cls._decode_to_dict(geom) for geom in dct]
+        if isinstance(dct, list | tuple):
+            if isinstance(dct[0], float | int) and len(dct) == 16:
+                return create_Transform(dct)
+            else:
+                return [cls._decode_to_dict(geom) for geom in dct]
+
         elif isinstance(dct, dict):
             if "archive3dm" in dct.keys():
                 dct["archive3dm"] = 70
