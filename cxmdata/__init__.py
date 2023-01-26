@@ -1,9 +1,18 @@
+import ast
 import base64
 import bz2
 import json
-from typing import Any
 
-import rhino3dm as rg
+IS_INSIDE_RHINOCODE = False
+try:
+    import Rhino.Geometry as rg
+
+    IS_INSIDE_RHINOCODE = True
+
+except:
+    import rhino3dm as rg
+
+    IS_INSIDE_RHINOCODE = False
 
 __all__ = ["CxmData"]
 
@@ -45,7 +54,8 @@ class CxmData(bytes):
 
     """
 
-    def __new__(cls, s: str | bytes | dict | list | Any, *args, **kwargs):
+    def __new__(cls, s, *args, **kwargs):
+        print(f"IS_INSIDE_RHINOCODE: {IS_INSIDE_RHINOCODE}")
         if isinstance(s, str):
             return super().__new__(cls, s.encode(), **kwargs)
         elif isinstance(s, bytes):
@@ -55,13 +65,16 @@ class CxmData(bytes):
 
     @classmethod
     def _decode_to_dict(cls, dct):
-        if isinstance(dct, list | tuple):
+        if isinstance(dct, list):
             return [cls._decode_to_dict(geom) for geom in dct]
 
         elif isinstance(dct, dict):
             if "archive3dm" in dct.keys():
                 dct["archive3dm"] = 70
-                return rg.GeometryBase.Decode(dct)
+                if IS_INSIDE_RHINOCODE:
+                    return rg.GeometryBase.FromJSON(json.dumps(dct))
+                else:
+                    return rg.GeometryBase.Decode(dct)
             elif "X" in dct.keys():
                 return rg.Point3d(*list(dct.values()))
             else:
@@ -76,20 +89,51 @@ class CxmData(bytes):
 
     @classmethod
     def _encode_to_cxm(cls, geoms):
-        if isinstance(geoms, list | tuple):
-            return [cls._encode_to_cxm(geom) for geom in geoms]
-        elif isinstance(geoms, dict):
-            return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
-        elif hasattr(geoms, "Encode"):
-            return geoms.Encode()
-        elif hasattr(geoms, "ToFloatArray"):
-            return geoms.ToFloatArray(True)
-        elif isinstance(geoms, (int, float, bool, bytes, str)):
-            return geoms
-        elif hasattr(geoms, "ToNurbsCurve"):
-            return geoms.ToNurbsCurve().Encode()
+        if IS_INSIDE_RHINOCODE:
+
+            if hasattr(geoms, "ToJSON"):
+                return ast.literal_eval(geoms.ToJSON(None))
+
+            elif hasattr(geoms, "ToFloatArray"):
+                return geoms.ToFloatArray(True)
+            elif isinstance(geoms, (int, float, bool, bytes, str)):
+                return geoms
+            elif hasattr(geoms, "ToNurbsCurve"):
+
+                return ast.literal_eval(geoms.ToNurbsCurve().ToJSON(None))
+            elif isinstance(geoms, rg.Point3d):
+                return {"X": geoms.X, "Y": geoms.Y, "Z": geoms.Z}
+            elif isinstance(geoms, list):
+                return [cls._encode_to_cxm(geom) for geom in geoms]
+
+
+
+            elif isinstance(geoms, dict):
+                return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
+
+
+            else:
+                raise TypeError(f"Can not encode this :( {geoms}")
         else:
-            raise TypeError(f"Can not encode this :( {geoms}")
+            if isinstance(geoms, list):
+                return [cls._encode_to_cxm(geom) for geom in list(geoms)]
+            elif isinstance(geoms, dict):
+                return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
+            elif hasattr(geoms, "Encode"):
+                return geoms.Encode()
+            elif hasattr(geoms, "ToJSON"):
+                return ast.literal_eval(geoms.ToJSON(None))
+            elif isinstance(geoms, rg.Point3d):
+                return {"X": geoms.X, "Y": geoms.Y, "Z": geoms.Z}
+            elif hasattr(geoms, "ToFloatArray"):
+                return geoms.ToFloatArray(True)
+            elif isinstance(geoms, (int, float, bool, bytes, str)):
+                return geoms
+            elif hasattr(geoms, "ToNurbsCurve") and not hasattr(geoms, "ToJSON"):
+
+                return cls._encode_to_cxm(geoms.ToNurbsCurve())
+            else:
+                raise TypeError(f"Can not encode this :( {geoms}")
 
     @classmethod
     def compress(cls, data):
