@@ -89,10 +89,17 @@ class CxmData(bytes):
                     return rg.GeometryBase.Decode(dct)
             elif "X" in dct.keys():
                 return rg.Point3d(*list(dct.values()))
-            elif "matrix" in dct.keys():
-                return pushback_transform(dct['matrix'])
+
+
             else:
-                return dict([(k, cls._decode_to_dict(v)) for k, v in dct.items()])
+                d = dict()
+                for k, v in dct.items():
+                    if k == 'matrix':
+                        d[k] = pushback_transform(dct['matrix'])
+
+                    else:
+                        d[k] = cls._decode_to_dict(v)
+                return d
         elif isinstance(dct, (int, float, bool, bytes, str)):
             return dct
         else:
