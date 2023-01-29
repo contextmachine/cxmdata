@@ -70,10 +70,8 @@ You can also simply import the package directly into Python scripts. To do this,
 ```python
 import sys
 
-
 sys.path.append(<path to repo>)
 from cxmdata import CxmData
 
-# you python code
 
 ```
