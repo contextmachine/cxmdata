@@ -1,4 +1,4 @@
-# Contextmachine Data Format
+# ContextMachine Data Format
 [![Docker](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml)
 ## Prequest
 The main package is `cxmdata`. All other packages in the directory exist to use the format within third-party packages.
@@ -71,5 +71,5 @@ You can also simply import the package directly into Python scripts. To do this,
 import sys
 sys.path.append(<path to repo>)
 from cxmdata import CxmData
-
+...
 ```
