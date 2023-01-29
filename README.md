@@ -69,7 +69,11 @@ $HOME/.rhinocode/python3.9-1.26/python3.9
 You can also simply import the package directly into Python scripts. To do this, clone the repository to a convenient location `<path to repo>` and place the following in the python script:
 ```python
 import sys
+
+
 sys.path.append(<path to repo>)
 from cxmdata import CxmData
-...
+
+# you python code
+
 ```
