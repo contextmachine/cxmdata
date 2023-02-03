@@ -1,6 +1,7 @@
 import ast
 import base64
 import bz2
+import ctypes
 import json
 
 IS_INSIDE_RHINOCODE = False
@@ -14,7 +15,8 @@ except:
 
     IS_INSIDE_RHINOCODE = False
 
-__all__ = ["CxmData"]
+__all__ = ["CxmData", "BasicTypes"]
+BasicTypes = int, float, bool, bytes, str, ctypes.c_char, ctypes.c_double
 
 
 def custom_slice(temp, slice_list):
@@ -100,8 +102,7 @@ class CxmData(bytes):
                     else:
                         d[k] = cls._decode_to_dict(v)
                 return d
-        elif isinstance(dct, (int, float, bool, bytes, str)):
-            return dct
+
         else:
             return dct
 
@@ -110,53 +111,59 @@ class CxmData(bytes):
 
     @classmethod
     def _encode_to_cxm(cls, geoms):
-        if IS_INSIDE_RHINOCODE:
-            from collections import Mapping
-            if hasattr(geoms, "ToJSON"):
-                return ast.literal_eval(geoms.ToJSON(None))
+        print(geoms)
+        if hasattr(geoms, "to_dict"):
 
-            elif hasattr(geoms, "ToFloatArray"):
-                return geoms.ToFloatArray(True)
-            elif isinstance(geoms, (int, float, bool, bytes, str)):
-                return geoms
-            elif hasattr(geoms, "ToNurbsCurve"):
+            return geoms.to_dict()
 
-                return ast.literal_eval(geoms.ToNurbsCurve().ToJSON(None))
-            elif isinstance(geoms, rg.Point3d):
-                return {"X": geoms.X, "Y": geoms.Y, "Z": geoms.Z}
-            elif isinstance(geoms, rg.Transform):
-                return {"matrix": geoms.ToFloatArray(True)}
-            elif isinstance(geoms, (list, tuple)):
-                return [cls._encode_to_cxm(geom) for geom in geoms]
+        elif isinstance(geoms, BasicTypes):
+            return geoms
+        elif hasattr(geoms, "Encode"):
+            return geoms.Encode()
 
+        elif hasattr(geoms, "toJSON"):
 
+            return ast.literal_eval(geoms.toJSON())
 
-            elif isinstance(geoms, (dict, Mapping)):
-                return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
-
-
-            else:
-                raise TypeError(f"Can not encode this :( {geoms}")
+        elif isinstance(geoms, rg.Point3d):
+            return {"X": geoms.X, "Y": geoms.Y, "Z": geoms.Z}
+        elif isinstance(geoms, rg.Transform):
+            return {"matrix": geoms.ToFloatArray(True)}
+        elif isinstance(geoms, (list, tuple)):
+            return [cls._encode_to_cxm(geom) for geom in geoms]
         else:
-            from collections.abc import Mapping
-            if isinstance(geoms, list | tuple):
-                return [cls._encode_to_cxm(geom) for geom in list(geoms)]
-            elif isinstance(geoms, dict | Mapping):
-                return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
-            elif hasattr(geoms, "Encode"):
-                return geoms.Encode()
+            if IS_INSIDE_RHINOCODE:
+                from collections import Mapping
+                if hasattr(geoms, "ToJSON"):
+                    return ast.literal_eval(geoms.ToJSON(None))
 
-            elif isinstance(geoms, rg.Point3d):
-                return {"X": geoms.X, "Y": geoms.Y, "Z": geoms.Z}
-            elif isinstance(geoms, rg.Transform):
-                return {"matrix": geoms.ToFloatArray(True)}
-            elif isinstance(geoms, (int, float, bool, bytes, str)):
-                return geoms
-            elif hasattr(geoms, "ToNurbsCurve") and not hasattr(geoms, "ToJSON"):
+                elif hasattr(geoms, "ToFloatArray"):
+                    return geoms.ToFloatArray(True)
+                elif hasattr(geoms, "ToNurbsCurve"):
 
-                return cls._encode_to_cxm(geoms.ToNurbsCurve())
+                    return ast.literal_eval(geoms.ToNurbsCurve().ToJSON(None))
+
+
+
+                elif isinstance(geoms, (dict, Mapping)):
+                    return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
+
+
+                else:
+                    raise TypeError(f"Can not encode this :( {geoms}")
             else:
-                raise TypeError(f"Can not encode this :( {geoms}")
+
+                from collections.abc import Mapping
+                if isinstance(geoms, list | tuple):
+                    return [cls._encode_to_cxm(geom) for geom in list(geoms)]
+                elif isinstance(geoms, dict | Mapping):
+                    return dict([(k, cls._encode_to_cxm(v)) for k, v in geoms.items()])
+
+                elif hasattr(geoms, "ToNurbsCurve"):
+
+                    return geoms.ToNurbsCurve().Encode()
+                elif isinstance(geoms, rg.Transform):
+                    return {"matrix": geoms.ToFloatArray(True)}
 
     @classmethod
     def compress(cls, data):
