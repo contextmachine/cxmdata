@@ -1,4 +1,4 @@
-# Contextmachine Data Format
+# ContextMachine Data Format
 [![Docker](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/contextmachine/cxmdata/actions/workflows/docker-publish.yml)
 ## Prequest
 The main package is `cxmdata`. All other packages in the directory exist to use the format within third-party packages.
@@ -53,3 +53,25 @@ However, if data storage in the file system is crucial, the file can be saved as
 ```
 For example, with using Pycharm:\
 ![img_1.png](img_1.png)
+## Using insude [rhinocode](https://discourse.mcneel.com/t/rhino-8-feature-rhinocode-cpython-csharp/128353)
+
+### Start using inside with pip
+To start using: 
+```bash
+# use your default shell
+$HOME/.rhinocode/<path to python>/<python> -m pip install git+https://github.com/contextmachine/cxmdata.git
+```
+Your `<path to python>` and `<python>` may be different depending on runtime or python version. For example it might be: 
+```bash
+$HOME/.rhinocode/python3.9-1.26/python3.9
+```
+### Start using inside with internal import
+You can also simply import the package directly into Python scripts. To do this, clone the repository to a convenient location `<path to repo>` and place the following in the python script:
+```python
+import sys
+
+sys.path.append(<path to repo>)
+from cxmdata import CxmData
+
+
+```
