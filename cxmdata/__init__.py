@@ -14,7 +14,7 @@ except:
 
     IS_INSIDE_RHINOCODE = False
 
-__all__ = ["CxmData"]
+__all__ = ["CxmData","traverse_cxm_data_json"]
 
 
 def custom_slice(temp, slice_list):
@@ -162,3 +162,29 @@ class CxmData(bytes):
     def compress(cls, data):
         return cls(
             base64.b16encode(bz2.compress(json.dumps(cls._encode_to_cxm(data)).encode(), compresslevel=9)).decode())
+
+    
+    
+    
+    
+    
+    
+def traverse_cxm_data_json(dat):
+    if isinstance(dat, dict):
+        dct = {}
+        for k, v in dat.items():
+             if k == "cxmdata":
+
+                 dct= cxmdata.CxmData(v).decompress()
+                 break
+             else:
+                 dct[k]=trv(v)
+        return dct
+    elif isinstance(dat, (list, tuple)):
+        return [trv(i) for i in dat]
+
+
+    else:
+         return dat
+
+
