@@ -168,6 +168,9 @@ class CxmData(bytes):
     
     
     
+  
+    
+    
     
 def traverse_cxm_data_json(dat):
     if isinstance(dat, dict):
@@ -178,13 +181,14 @@ def traverse_cxm_data_json(dat):
                  dct= cxmdata.CxmData(v).decompress()
                  break
              else:
-                 dct[k]=trv(v)
+                 dct[k]=traverse_cxm_data_json(v)
         return dct
     elif isinstance(dat, (list, tuple)):
-        return [trv(i) for i in dat]
+        return [traverse_cxm_data_json(i) for i in dat]
 
 
     else:
          return dat
+
 
 
